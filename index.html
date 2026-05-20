@@ -231,6 +231,7 @@ body{font-family:'Inter',sans-serif;background:#f4f6fa;color:#1a2340;min-height:
 }
 
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 
@@ -802,7 +803,7 @@ function renderRegion(d){
     `<thead><tr><th>Región</th><th>Total</th><th>Ef.</th><th>%</th></tr></thead><tbody>${rows}</tbody>`;
 }
 
-function renderAll(){
+function renderAllOts(){
   document.querySelectorAll('.mtab').forEach(b=>b.classList.toggle('active',b.dataset.mes===curMes));
   document.getElementById('mesLabel').textContent = MESES_LABEL[curMes]||curMes;
   const d = DATA[curMes];
@@ -811,9 +812,9 @@ function renderAll(){
 }
 
 document.querySelectorAll('.mtab').forEach(b=>{
-  b.addEventListener('click',()=>{curMes=b.dataset.mes;renderAll();});
+  b.addEventListener('click',()=>{curMes=b.dataset.mes;renderAllOts();});
 });
-renderAll();
+renderAllOts();
 </script>
 
   </div>
@@ -835,6 +836,15 @@ renderAll();
 function switchPanel(name) {
   document.querySelectorAll('.hub-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === name));
   document.querySelectorAll('.hub-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  // Re-render charts after panel becomes visible
+  setTimeout(function() {
+    if (name === 'ots' && typeof renderAll === 'function') {
+      try { renderAllOts(); } catch(e) {}
+    }
+    if (name === 'conteos' && typeof renderAll === 'function') {
+      try { renderAllOts(); } catch(e) {}
+    }
+  }, 50);
 }
 document.querySelectorAll('.hub-tab').forEach(btn => {
   btn.addEventListener('click', () => { if(btn.dataset.panel) switchPanel(btn.dataset.panel); });
