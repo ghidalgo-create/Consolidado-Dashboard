@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consolidado de OTs — TT Audit</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #1a2340;
+  --navy2:   #212d4f;
+  --gold:    #e8b84b;
+  --gold2:   #f5c842;
+  --white:   #ffffff;
+  --bg:      #f4f6fa;
+  --bg2:     #ffffff;
+  --border:  #e2e6ef;
+  --text:    #1a2340;
+  --text2:   #4a5568;
+  --text3:   #8a94a6;
+  --green:   #27ae60;
+  --green-bg:#e8f8f0;
+  --red:     #e74c3c;
+  --red-bg:  #fdf0ee;
+  --blue:    #2563eb;
+  --blue-bg: #eff4ff;
+  --amber:   #d97706;
+  --amber-bg:#fff8e6;
+  --orange:  #e67e22;
+  --teal:    #0891b2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--navy);padding:0 32px;display:flex;align-items:center;gap:0;border-bottom:3px solid var(--gold)}
+.header-logo{background:var(--white);color:var(--navy);font-weight:700;font-size:13px;padding:10px 18px;letter-spacing:.5px}
+.header-divider{width:1px;height:56px;background:rgba(255,255,255,0.15);margin:0 24px}
+.header-title{color:var(--white)}
+.header-title h1{font-size:17px;font-weight:700;letter-spacing:-.2px}
+.header-title h1 span{color:var(--gold)}
+.header-title p{font-size:11px;color:rgba(255,255,255,0.45);margin-top:2px;letter-spacing:.3px}
+
+/* MONTH STRIP */
+.month-strip{background:var(--white);padding:14px 32px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.month-strip label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-right:4px}
+.mtab{padding:7px 20px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text2);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.mtab:hover{border-color:var(--navy);color:var(--navy)}
+.mtab.active{background:var(--navy);border-color:var(--navy);color:var(--white);font-weight:600}
+
+/* MAIN */
+.main{padding:24px 32px;display:flex;flex-direction:column;gap:20px}
+
+/* SECTION HEADER */
+.section-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text3);display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.section-hdr::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block}
+.section-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;border-top:3px solid var(--kpi-color,var(--navy))}
+.kpi-icon{font-size:20px;margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--kpi-color,var(--navy));line-height:1;letter-spacing:-1px}
+.kpi-label{font-size:12px;font-weight:600;color:var(--text);margin-top:6px}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* CARDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 22px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.card-title .dot{width:7px;height:7px;border-radius:50%;background:var(--gold)}
+
+/* LEGEND */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.legend-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* MOTIVOS */
+.motivo-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.motivo-row:last-child{border:none}
+.motivo-label{flex:1;font-size:12px;color:var(--text2);line-height:1.3}
+.motivo-bar-bg{width:90px;height:6px;background:var(--bg);border-radius:3px;flex-shrink:0}
+.motivo-bar{height:100%;background:var(--red);border-radius:3px}
+.motivo-count{font-size:13px;font-weight:600;color:var(--text);min-width:26px;text-align:right}
+
+/* REGION TABLE */
+.rtable{width:100%;border-collapse:collapse;font-size:13px}
+.rtable th{text-align:left;color:var(--text3);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;padding:0 0 8px;border-bottom:1px solid var(--border)}
+.rtable td{padding:9px 0;border-bottom:1px solid var(--border);color:var(--text2)}
+.rtable td:first-child{font-weight:600;color:var(--text)}
+.rtable tr:last-child td{border:none}
+.ef-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.ef-high{background:var(--green-bg);color:var(--green)}
+.ef-mid{background:var(--amber-bg);color:var(--amber)}
+.ef-low{background:var(--red-bg);color:var(--red)}
+
+/* FOOTER */
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);background:var(--white)}
+
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr)}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+  .main,.month-strip,.header{padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header" style="min-height:56px">
+  <div class="header-logo">TT AUDIT</div>
+  <div class="header-divider"></div>
+  <div class="header-title">
+    <h1>Dashboard Consolidado <span>OTs</span></h1>
+    <p>Trade Marketing Solutions · TT Audit</p>
+  </div>
+</div>
+
+<!-- MONTH TABS -->
+<div class="month-strip">
+  <label>Seleccionar mes:</label>
+  <button class="mtab" data-mes="2026-01">Enero 2026</button>
+  <button class="mtab" data-mes="2026-02">Febrero 2026</button>
+  <button class="mtab" data-mes="2026-03">Marzo 2026</button>
+  <button class="mtab active" data-mes="2026-04">Abril 2026</button>
+  <span id="mesLabel" style="margin-left:auto;font-size:12px;font-weight:700;color:var(--text3);letter-spacing:.7px;text-transform:uppercase"></span>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPIs -->
+  <div>
+    <div class="section-hdr">Resumen General</div>
+    <div style="height:10px"></div>
+    <div class="kpi-grid" id="kpis"></div>
+  </div>
+
+  <!-- ROW 1 -->
+  <div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>OTs por cadena</div>
+        <div class="legend" id="leg-cadena"></div>
+        <div style="position:relative;height:230px"><canvas id="chartCadena" role="img" aria-label="OTs por cadena"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Distribución de status</div>
+        <div class="legend" id="leg-status"></div>
+        <div style="position:relative;height:230px"><canvas id="chartStatus" role="img" aria-label="Status de OTs"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Top proyectos — Total vs Efectivo</div>
+    <div style="position:relative" id="proyWrap"><canvas id="chartProy" role="img" aria-label="Proyectos"></canvas></div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Tipo de OT</div>
+      <div class="legend" id="leg-tipo"></div>
+      <div style="position:relative;height:200px"><canvas id="chartTipo" role="img" aria-label="Tipo de OT"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Motivos no efectivos</div>
+      <div id="motivosList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Región Lima / KC / NKC</div>
+      <table class="rtable" id="regionTable"></table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">TT Audit · Canal Moderno · 4,697 registros totales (Enero–Abril 2026)</div>
+
+<script>
+const DATA = {
+  "2026-01":{total:1710,visitado:1710,efectivo:1662,no_efectivo:48,programado:0,por_programar:0,
+    cadena:{AVA:{total:6,efectivo:6},CENCOSUD:{total:3,efectivo:3},INDELFI:{total:1,efectivo:1},MASS:{total:18,efectivo:18},OXXO:{total:13,efectivo:13},PRIMAX:{total:216,efectivo:213},RAPPI:{total:5,efectivo:4},REPSOL:{total:114,efectivo:107},TAMBO:{total:1328,efectivo:1293}},
+    tipo:{CAMPAÑAS:{total:1340,efectivo:1320},HARDWARE:{total:370,efectivo:342}},
+    proyectos:{"CAMPAÑA VELO Y VUSE 3K TAMBO":{total:1109,efectivo:1091},"RUTA MERCH":{total:241,efectivo:225},"REEMPLAZO REEL ASPIRACIONAL X 3K":{total:113,efectivo:111},"REEL NUEVOS SABORES":{total:109,efectivo:109},"NEGOCIACIONES DE D. TAMBO":{total:15,efectivo:13},"APERTURAS TAMBO":{total:15,efectivo:12},"INST. CIGARRERAS LUMOS":{total:14,efectivo:9},"MASS - INST. CIGARRERA":{total:13,efectivo:13}},
+    motivos:{"STAFF NO PERMITIÓ":36,"ACTIVO EN MAL ESTADO":7,"PENDIENTE MATERIAL":2,"LOCAL CERRADO":2,"LOCAL CERRADO DEFINITIVAMENTE":1},
+    region:{LIMA:{total:1485,efectivo:1439},KC:{total:162,efectivo:162},NKC:{total:63,efectivo:61}}},
+  "2026-02":{total:662,visitado:659,efectivo:635,no_efectivo:24,programado:0,por_programar:1,
+    cadena:{AVA:{total:33,efectivo:32},CENCOSUD:{total:1,efectivo:1},MASS:{total:17,efectivo:17},OXXO:{total:2,efectivo:2},PRIMAX:{total:227,efectivo:224},REPSOL:{total:124,efectivo:116},TAMBO:{total:258,efectivo:243}},
+    tipo:{CAMPAÑAS:{total:210,efectivo:195},HARDWARE:{total:452,efectivo:440}},
+    proyectos:{"RUTA MERCH":{total:164,efectivo:153},"LUCES STAR LITE Y STAR ONE":{total:152,efectivo:152},"REEL NUEVOS SABORES":{total:113,efectivo:109},"REVISITAS CAMPAÑA TAMBO":{total:96,efectivo:85},"APAGADO ÚLTIMO CARRIL PMI":{total:34,efectivo:34},"TAMBO - HAB. CIGARRERAS":{total:32,efectivo:32},"RETIRO GLORIFICADORES AVA":{total:17,efectivo:17},"RUTA VISITA BAT":{total:13,efectivo:13}},
+    motivos:{"STAFF NO PERMITIÓ":16,"ACTIVO EN MAL ESTADO":4,"CLIENTE SIN ACTIVO BAT":2,"LOCAL CERRADO":2},
+    region:{LIMA:{total:593,efectivo:566},KC:{total:54,efectivo:54},NKC:{total:15,efectivo:15}}},
+  "2026-03":{total:946,visitado:922,efectivo:859,no_efectivo:63,programado:4,por_programar:20,
+    cadena:{AVA:{total:1,efectivo:1},CENCOSUD:{total:29,efectivo:8},MASS:{total:11,efectivo:11},OXXO:{total:1,efectivo:1},PRIMAX:{total:64,efectivo:57},RAPPI:{total:1,efectivo:1},REPSOL:{total:79,efectivo:74},TAMBO:{total:759,efectivo:705}},
+    tipo:{CAMPAÑAS:{total:605,efectivo:572},HARDWARE:{total:341,efectivo:287}},
+    proyectos:{"CAMPAÑA VUSE 3K NUEVO LEGAL":{total:526,efectivo:494},"RUTA MERCH":{total:134,efectivo:116},"NUEVO ARTE ESPAÑOL VUSE 3K":{total:46,efectivo:45},"TAMBO - HAB. DISPENSER":{total:42,efectivo:42},"RUTA AUDITORÍA":{total:36,efectivo:36},"REVISITAS VUSE 3K":{total:33,efectivo:33},"NEGOCIACIONES D. TAMBO":{total:33,efectivo:27},"PLAN CENCOSUD":{total:26,efectivo:5}},
+    motivos:{"STAFF NO PERMITIÓ":43,"LOCAL CERRADO":11,"ACTIVO EN MAL ESTADO":9},
+    region:{LIMA:{total:913,efectivo:827},KC:{total:25,efectivo:25},NKC:{total:8,efectivo:7}}},
+  "2026-04":{total:1379,visitado:1170,efectivo:1033,no_efectivo:137,programado:184,por_programar:25,
+    cadena:{AVA:{total:16,efectivo:15},MASS:{total:24,efectivo:19},OXXO:{total:213,efectivo:187},PRIMAX:{total:314,efectivo:223},REPSOL:{total:103,efectivo:75},TAMBO:{total:708,efectivo:513}},
+    tipo:{CAMPAÑAS:{total:1123,efectivo:831},HARDWARE:{total:256,efectivo:202}},
+    proyectos:{"CAMPAÑA VELO 8MG":{total:995,efectivo:704},"CAMPAÑA VUSE 3K NUEVO LEGAL":{total:118,efectivo:117},"RUTA MERCH":{total:96,efectivo:60},"APERTURAS TAMBO":{total:64,efectivo:54},"ACRÍLICOS VELO - TAMBO":{total:28,efectivo:28},"PLAN MASS":{total:24,efectivo:19},"TAMBO - HAB. DISPENSER":{total:22,efectivo:22},"REVISITAS VELO 8MG":{total:10,efectivo:10}},
+    motivos:{"STAFF NO PERMITIÓ":96,"LOCAL CERRADO":28,"ACTIVO EN MAL ESTADO":10,"CLIENTE SIN ACTIVO BAT":3},
+    region:{LIMA:{total:1119,efectivo:778},KC:{total:192,efectivo:190},NKC:{total:68,efectivo:65}}}
+};
+
+const MESES_LABEL = {"2026-01":"ENERO 2026","2026-02":"FEBRERO 2026","2026-03":"MARZO 2026","2026-04":"ABRIL 2026"};
+
+const CADENA_COLORS = {
+  TAMBO:'#1a2340', PRIMAX:'#27ae60', REPSOL:'#e8b84b',
+  OXXO:'#e74c3c',  AVA:'#8e44ad',   MASS:'#e67e22',
+  CENCOSUD:'#2563eb', RAPPI:'#64748b', INDELFI:'#0891b2'
+};
+const STATUS_COLORS = ['#27ae60','#e74c3c','#2563eb','#d97706'];
+
+let charts = {};
+let curMes = '2026-04';
+
+function pct(a,b){return b===0?0:Math.round(a/b*100)}
+function efClass(p){return p>=90?'ef-high':p>=75?'ef-mid':'ef-low'}
+
+function renderKPIs(d){
+  const ef = pct(d.efectivo, d.visitado);
+  const efColor = ef>=90?'var(--green)':ef>=75?'var(--amber)':'var(--red)';
+  const items = [
+    {icon:'📋', label:'Total OTs',     val:d.total.toLocaleString(),    sub:'registros totales',        color:'var(--navy)'},
+    {icon:'✅', label:'Visitadas',     val:d.visitado.toLocaleString(), sub:`${pct(d.visitado,d.total)}% del total`,   color:'var(--blue)'},
+    {icon:'🎯', label:'Efectivas',     val:d.efectivo.toLocaleString(), sub:'OTs completadas',           color:'var(--green)'},
+    {icon:'❌', label:'No efectivas',  val:d.no_efectivo.toLocaleString(), sub:'sin completar',          color:'var(--red)'},
+    {icon:'📊', label:'% Efectividad', val:ef+'%',                      sub:'sobre visitadas',           color:efColor},
+    {icon:'⏳', label:'Pendientes',    val:(d.programado+d.por_programar).toLocaleString(), sub:`${d.programado} prog · ${d.por_programar} por prog`, color:'var(--amber)'},
+  ];
+  document.getElementById('kpis').innerHTML = items.map(k=>`
+    <div class="kpi" style="--kpi-color:${k.color}">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-val">${k.val}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+}
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+const CHART_OPTS = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{ticks:{color:'#8a94a6',font:{size:11,family:'Inter'},maxRotation:30,autoSkip:false},
+       grid:{color:'rgba(0,0,0,0.04)'},border:{color:'#e2e6ef'}},
+    y:{ticks:{color:'#8a94a6',font:{size:11,family:'Inter'}},
+       grid:{color:'rgba(0,0,0,0.04)'},border:{color:'#e2e6ef'}}
+  }
+};
+
+function renderCadena(d){
+  destroyChart('cadena');
+  const cads = Object.keys(d.cadena);
+  const cols  = cads.map(c=>CADENA_COLORS[c]||'#8a94a6');
+  document.getElementById('leg-cadena').innerHTML = cads.map((c,i)=>
+    `<div class="legend-item"><div class="legend-sq" style="background:${cols[i]}"></div>${c} <span style="color:var(--text3);margin-left:2px">${d.cadena[c].total}</span></div>`
+  ).join('');
+  charts['cadena'] = new Chart(document.getElementById('chartCadena'),{
+    type:'bar',
+    data:{labels:cads,datasets:[
+      {label:'Total',   data:cads.map(c=>d.cadena[c].total),   backgroundColor:cols.map(c=>c+'22'), borderColor:cols, borderWidth:1.5, borderRadius:4},
+      {label:'Efectivo',data:cads.map(c=>d.cadena[c].efectivo),backgroundColor:cols, borderWidth:0, borderRadius:4}
+    ]},
+    options:{...CHART_OPTS,plugins:{...CHART_OPTS.plugins,tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}`}}}}
+  });
+}
+
+function renderStatus(d){
+  destroyChart('status');
+  const labels=['Efectivo','No efectivo','Programado','Por programar'];
+  const vals=[d.efectivo,d.no_efectivo,d.programado,d.por_programar];
+  document.getElementById('leg-status').innerHTML = labels.map((l,i)=>
+    `<div class="legend-item"><div class="legend-sq" style="background:${STATUS_COLORS[i]}"></div>${l}: <strong style="color:var(--text);margin-left:2px">${vals[i]}</strong></div>`
+  ).join('');
+  charts['status'] = new Chart(document.getElementById('chartStatus'),{
+    type:'doughnut',
+    data:{labels,datasets:[{data:vals,backgroundColor:STATUS_COLORS,borderWidth:3,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} (${pct(ctx.raw,d.total)}%)`}}}}
+  });
+}
+
+function renderProy(d){
+  destroyChart('proy');
+  const projs = Object.keys(d.proyectos);
+  const h = Math.max(projs.length*44+60,200);
+  document.getElementById('proyWrap').style.height = h+'px';
+  charts['proy'] = new Chart(document.getElementById('chartProy'),{
+    type:'bar',
+    data:{labels:projs,datasets:[
+      {label:'Total',   data:projs.map(p=>d.proyectos[p].total),   backgroundColor:'rgba(26,35,64,0.1)', borderWidth:0, borderRadius:3},
+      {label:'Efectivo',data:projs.map(p=>d.proyectos[p].efectivo),backgroundColor:'#1a2340',            borderWidth:0, borderRadius:3}
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.raw}`}}},
+      scales:{
+        x:{ticks:{color:'#8a94a6',font:{size:11,family:'Inter'}},grid:{color:'rgba(0,0,0,0.04)'},border:{color:'#e2e6ef'}},
+        y:{ticks:{color:'#4a5568',font:{size:11,family:'Inter'}},grid:{display:false},border:{color:'#e2e6ef'}}
+      }}
+  });
+}
+
+function renderTipo(d){
+  destroyChart('tipo');
+  const tipos = Object.keys(d.tipo);
+  const cols = ['#1a2340','#27ae60'];
+  document.getElementById('leg-tipo').innerHTML = tipos.map((t,i)=>
+    `<div class="legend-item"><div class="legend-sq" style="background:${cols[i]}"></div>${t}: ${d.tipo[t].total} <span style="color:var(--text3)">(${pct(d.tipo[t].efectivo,d.tipo[t].total)}% ef.)</span></div>`
+  ).join('');
+  charts['tipo'] = new Chart(document.getElementById('chartTipo'),{
+    type:'pie',
+    data:{labels:tipos,datasets:[{data:tipos.map(t=>d.tipo[t].total),backgroundColor:cols,borderWidth:3,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw}`}}}}
+  });
+}
+
+function renderMotivos(d){
+  const items = Object.entries(d.motivos).sort((a,b)=>b[1]-a[1]);
+  const max = items[0]?items[0][1]:1;
+  document.getElementById('motivosList').innerHTML = items.map(([k,v])=>`
+    <div class="motivo-row">
+      <div class="motivo-label">${k}</div>
+      <div class="motivo-bar-bg"><div class="motivo-bar" style="width:${Math.round(v/max*100)}%"></div></div>
+      <div class="motivo-count">${v}</div>
+    </div>`).join('');
+}
+
+function renderRegion(d){
+  const rows = Object.entries(d.region).map(([k,v])=>{
+    const p = pct(v.efectivo,v.total);
+    return `<tr>
+      <td>${k}</td><td>${v.total}</td><td>${v.efectivo}</td>
+      <td><span class="ef-badge ${efClass(p)}">${p}%</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('regionTable').innerHTML =
+    `<thead><tr><th>Región</th><th>Total</th><th>Ef.</th><th>%</th></tr></thead><tbody>${rows}</tbody>`;
+}
+
+function renderAll(){
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.toggle('active',b.dataset.mes===curMes));
+  document.getElementById('mesLabel').textContent = MESES_LABEL[curMes]||curMes;
+  const d = DATA[curMes];
+  renderKPIs(d); renderCadena(d); renderStatus(d);
+  renderProy(d); renderTipo(d); renderMotivos(d); renderRegion(d);
+}
+
+document.querySelectorAll('.mtab').forEach(b=>{
+  b.addEventListener('click',()=>{curMes=b.dataset.mes;renderAll();});
+});
+renderAll();
+</script>
+</body>
+</html>

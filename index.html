@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TT Audit — Centro de Dashboards</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #1a2340;
+  --navy2:  #212d4f;
+  --gold:   #e8b84b;
+  --white:  #ffffff;
+  --bg:     #f4f6fa;
+  --border: #e2e6ef;
+  --text:   #1a2340;
+  --text2:  #4a5568;
+  --text3:  #8a94a6;
+  --green:  #27ae60;
+  --red:    #e74c3c;
+  --amber:  #d97706;
+  --blue:   #2563eb;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--navy);
+  border-bottom: 3px solid var(--gold);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  min-height: 58px;
+  flex-shrink: 0;
+  gap: 0;
+}
+.logo-box {
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 18px;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+.header-div {
+  width: 1px;
+  height: 58px;
+  background: rgba(255,255,255,0.15);
+  margin: 0 24px;
+}
+.header-info h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -.2px;
+}
+.header-info h1 span { color: var(--gold); }
+.header-info p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+  letter-spacing: .3px;
+}
+.header-right {
+  margin-left: auto;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+/* ── NAV TABS ── */
+.nav-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 20px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text3);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  font-family: 'Inter', sans-serif;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--navy); background: var(--bg); }
+.nav-tab.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+  font-weight: 600;
+}
+.nav-tab .badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text3);
+  letter-spacing: .3px;
+}
+.nav-tab.active .badge {
+  background: var(--gold);
+  color: var(--navy);
+}
+.nav-tab .coming {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: #f0f4ff;
+  color: var(--blue);
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+
+/* ── PANELS ── */
+.panels { flex: 1; display: flex; flex-direction: column; }
+.panel { display: none; flex: 1; flex-direction: column; }
+.panel.active { display: flex; }
+
+/* iframe panel */
+.iframe-wrap {
+  flex: 1;
+  border: none;
+  display: flex;
+  flex-direction: column;
+}
+.iframe-wrap iframe {
+  flex: 1;
+  border: none;
+  width: 100%;
+  min-height: calc(100vh - 120px);
+}
+
+/* home panel */
+.home-panel {
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.home-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .9px;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.home-title::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--gold); display:inline-block; }
+.home-title::after  { content:''; flex:1; height:1px; background:var(--border); }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.dash-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all .15s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 4px solid var(--card-color, var(--navy));
+  text-decoration: none;
+  color: inherit;
+}
+.dash-card:hover { box-shadow: 0 4px 20px rgba(26,35,64,0.10); transform: translateY(-2px); }
+.dash-card.disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.dash-card-icon { font-size: 28px; }
+.dash-card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.dash-card-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+.dash-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  width: fit-content;
+}
+.tag-live  { background: #e8f8f0; color: var(--green); }
+.tag-soon  { background: #f0f4ff; color: var(--blue); }
+
+/* footer */
+.footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+  background: var(--white);
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-box">TT AUDIT</div>
+  <div class="header-div"></div>
+  <div class="header-info">
+    <h1>Centro de <span>Dashboards</span></h1>
+    <p>Trade Marketing Solutions · TT Audit</p>
+  </div>
+  <div class="header-right">Canal Moderno · 2026</div>
+</div>
+
+<!-- NAV -->
+<div class="nav-bar">
+  <button class="nav-tab active" data-panel="home">
+    🏠 Inicio
+  </button>
+  <button class="nav-tab" data-panel="conteos">
+    📦 Conteos
+    <span class="badge">LIVE</span>
+  </button>
+  <button class="nav-tab" data-panel="ots">
+    📋 Consolidado de OTs
+    <span class="badge">LIVE</span>
+  </button>
+  <button class="nav-tab" data-panel="conectados" disabled>
+    🔗 Conectados
+    <span class="coming">Próximo</span>
+  </button>
+  <button class="nav-tab" data-panel="quiebres" disabled>
+    ⚠️ Quiebres
+    <span class="coming">Próximo</span>
+  </button>
+  <button class="nav-tab" data-panel="semaforos" disabled>
+    🚦 Semáforos
+    <span class="coming">Próximo</span>
+  </button>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- HOME -->
+  <div class="panel active" id="panel-home">
+    <div class="home-panel">
+      <div>
+        <div class="home-title">Dashboards disponibles</div>
+        <div style="height:16px"></div>
+        <div class="dash-grid">
+
+          <div class="dash-card" style="--card-color:#27ae60" onclick="switchPanel('conteos')">
+            <div class="dash-card-icon">📦</div>
+            <div class="dash-card-title">Conteos VUSE / VELO</div>
+            <div class="dash-card-desc">Seguimiento de PDVs con conteo efectivo, parcial y no efectivo por promotor, región y cadena.</div>
+            <div class="dash-card-tag tag-live">● Activo</div>
+          </div>
+
+          <div class="dash-card" style="--card-color:#1a2340" onclick="switchPanel('ots')">
+            <div class="dash-card-icon">📋</div>
+            <div class="dash-card-title">Consolidado de OTs</div>
+            <div class="dash-card-desc">Seguimiento de órdenes de trabajo por cadena, proyecto, tipo y región. Efectividad mensual.</div>
+            <div class="dash-card-tag tag-live">● Activo</div>
+          </div>
+
+          <div class="dash-card disabled" style="--card-color:#2563eb">
+            <div class="dash-card-icon">🔗</div>
+            <div class="dash-card-title">Conectados</div>
+            <div class="dash-card-desc">Cobertura y estado de conexión de promotores en campo por zona y cadena.</div>
+            <div class="dash-card-tag tag-soon">⏳ Próximamente</div>
+          </div>
+
+          <div class="dash-card disabled" style="--card-color:#e74c3c">
+            <div class="dash-card-icon">⚠️</div>
+            <div class="dash-card-title">Quiebres</div>
+            <div class="dash-card-desc">Reporte de quiebres de stock por SKU, tienda y cadena. Análisis de brechas de disponibilidad.</div>
+            <div class="dash-card-tag tag-soon">⏳ Próximamente</div>
+          </div>
+
+          <div class="dash-card disabled" style="--card-color:#d97706">
+            <div class="dash-card-icon">🚦</div>
+            <div class="dash-card-title">Semáforos</div>
+            <div class="dash-card-desc">Indicadores semafóricos de cumplimiento por promotor y cadena para seguimiento en tiempo real.</div>
+            <div class="dash-card-tag tag-soon">⏳ Próximamente</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEOS -->
+  <div class="panel" id="panel-conteos">
+    <div class="iframe-wrap">
+      <iframe
+        id="iframe-conteos"
+        src=""
+        data-src="conteos.html"
+        title="Dashboard Conteos VUSE / VELO"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- OTs -->
+  <div class="panel" id="panel-ots">
+    <div class="iframe-wrap">
+      <iframe
+        id="iframe-ots"
+        src=""
+        data-src="consolidado_ots.html"
+        title="Consolidado de OTs"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+
+  <!-- PLACEHOLDER PANELS -->
+  <div class="panel" id="panel-conectados">
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:16px;color:var(--text3)">
+      <div style="font-size:48px">🔗</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text2)">Dashboard Conectados</div>
+      <div style="font-size:13px">En construcción — próximamente disponible</div>
+    </div>
+  </div>
+  <div class="panel" id="panel-quiebres">
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:16px;color:var(--text3)">
+      <div style="font-size:48px">⚠️</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text2)">Dashboard Quiebres</div>
+      <div style="font-size:13px">En construcción — próximamente disponible</div>
+    </div>
+  </div>
+  <div class="panel" id="panel-semaforos">
+    <div style="display:flex;align-items:center;justify-content:center;flex:1;flex-direction:column;gap:16px;color:var(--text3)">
+      <div style="font-size:48px">🚦</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text2)">Dashboard Semáforos</div>
+      <div style="font-size:13px">En construcción — próximamente disponible</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">© 2026 TT Audit · Trade Marketing Solutions · Canal Moderno</div>
+
+<script>
+function switchPanel(name) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+
+  // lazy load iframes
+  const iframe = document.getElementById('iframe-' + name);
+  if (iframe && !iframe.src) {
+    iframe.src = iframe.dataset.src;
+  }
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.dataset.panel;
+    if (panel) switchPanel(panel);
+  });
+});
+</script>
+</body>
+</html>
