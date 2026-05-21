@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Quiebres | TT Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2F6E;--navy-dark:#111D47;--gold:#F5C518;--gold-dark:#C9A000;
+  --bg:#F4F6FB;--bg2:#EBEEF7;--card:#FFFFFF;--border:#D0D7EC;
+  --text:#1B2F6E;--text2:#3A4A72;--muted:#6B7A99;
+  --green:#0E9B6A;--red:#C93B3B;--orange:#D97706;--blue:#2563EB;
+  --red-bg:#FEE2E2;--green-bg:#D1FAE5;--orange-bg:#FEF3C7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:"Source Sans 3",sans-serif;font-size:14px;min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--navy-dark);border-bottom:3px solid var(--gold);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:72px;}
+.header-left{display:flex;align-items:center;gap:20px;}
+.logo-box{background:#fff;border-radius:8px;padding:6px 16px;display:flex;align-items:center;justify-content:center;height:52px;}
+.logo-box span{font-family:serif;font-weight:700;color:#1B2F6E;font-size:14px;}
+.header-sep{width:1px;height:40px;background:rgba(245,197,24,0.35);margin:0 4px;}
+.header-title{font-family:"Playfair Display",serif;font-size:17px;font-weight:700;color:#fff;}
+.header-title em{color:var(--gold);font-style:normal;}
+.header-sub{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
+
+/* TABS BAR */
+.tabs-bar{background:#fff;border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:flex-end;gap:4px;}
+.cat-tab{padding:14px 24px 12px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;font-family:"Source Sans 3",sans-serif;color:var(--muted);transition:all .15s;}
+.cat-tab:hover{color:var(--navy);background:var(--bg);}
+.cat-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+
+/* MONTH BAR */
+.month-bar{background:#fff;border-bottom:1px solid var(--border);padding:12px 32px;display:flex;align-items:center;gap:12px;}
+.month-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);}
+.month-btn{padding:7px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--navy);font-family:"Source Sans 3",sans-serif;transition:all .18s;}
+.month-btn.active{background:var(--navy);color:#fff;}
+.month-btn.inactive{background:#fff;color:var(--navy);}
+.mes-badge{margin-left:auto;background:rgba(27,47,110,0.08);border:1px solid var(--border);color:var(--navy);font-size:11px;font-weight:700;padding:5px 16px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;}
+
+/* MAIN */
+.main{padding:20px 32px 32px;}
+.section-title{font-family:"Playfair Display",serif;font-size:13px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:10px;width:100%;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;box-shadow:0 1px 6px rgba(27,47,110,0.07);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:var(--kc,var(--navy));}
+.kpi-icon{font-size:20px;margin-bottom:8px;}
+.kpi-val{font-family:"Playfair Display",serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px;color:var(--navy);}
+.kpi-label{font-size:12px;color:var(--muted);font-weight:600;}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* CARDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;box-shadow:0 1px 6px rgba(27,47,110,0.07);}
+.chart-title{font-family:"Playfair Display",serif;font-size:13px;font-weight:600;margin-bottom:14px;color:var(--navy);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);padding-bottom:10px;}
+
+/* BARS */
+.bar-chart{display:flex;flex-direction:column;gap:10px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-label{font-size:11px;color:var(--text2);width:140px;flex-shrink:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-track{flex:1;background:var(--bg2);border-radius:4px;height:9px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;}
+.bar-val{font-size:11px;font-weight:700;width:38px;text-align:right;flex-shrink:0;color:var(--navy);}
+.bar-pct{font-size:10px;color:var(--muted);width:36px;text-align:right;flex-shrink:0;}
+
+/* CADENA TABLE */
+.ctable{width:100%;border-collapse:collapse;font-size:12px;}
+.ctable th{background:var(--bg2);color:var(--navy);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:8px 12px;text-align:left;border-bottom:2px solid var(--border);}
+.ctable td{padding:9px 12px;border-bottom:1px solid var(--border);}
+.ctable tr:hover td{background:#F0F4FF;}
+.ctable tr:last-child td{border:none;}
+.pct-bar-wrap{display:flex;align-items:center;gap:8px;}
+.pct-bar-bg{width:80px;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.pct-bar-fill{height:100%;border-radius:3px;}
+.badge-red{display:inline-block;background:var(--red-bg);color:var(--red);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+.badge-green{display:inline-block;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+.badge-orange{display:inline-block;background:var(--orange-bg);color:var(--orange);padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;}
+
+/* TREND */
+.trend-bars{display:flex;gap:12px;align-items:flex-end;height:100px;padding-top:8px;}
+.trend-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.trend-bar-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:70px;width:100%;}
+.trend-bar{width:100%;border-radius:4px 4px 0 0;}
+.trend-label{font-size:10px;color:var(--muted);font-weight:600;text-align:center;}
+.trend-val{font-size:10px;font-weight:700;color:var(--navy);}
+
+/* FOOTER */
+.footer{background:var(--navy-dark);border-top:3px solid var(--gold);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.5);margin-top:10px;}
+.footer span{color:var(--gold);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-box"><span>TT AUDIT</span></div>
+    <div class="header-sep"></div>
+    <div>
+      <div class="header-title">Dashboard <em>Quiebres</em></div>
+      <div class="header-sub">Trade Marketing Solutions · TT Audit</div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY TABS -->
+<div class="tabs-bar">
+  <button class="cat-tab active" data-cat="FMC">📦 FMC (Cigarrillos)</button>
+  <button class="cat-tab" data-cat="VUSE">💨 VUSE (Vapes)</button>
+</div>
+
+<!-- MONTH BAR -->
+<div class="month-bar">
+  <span class="month-label">Seleccionar mes:</span>
+  <button class="month-btn active" data-mes="ENE">Enero 2026</button>
+  <button class="month-btn inactive" data-mes="FEB">Febrero 2026</button>
+  <button class="month-btn inactive" data-mes="MAR">Marzo 2026</button>
+  <button class="month-btn inactive" data-mes="ABR">Abril 2026</button>
+  <div class="mes-badge" id="mesBadge">ENERO 2026</div>
+</div>
+
+<div class="main">
+  <div class="section-title" id="sectionTitle">Resumen General</div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- ROW 1 -->
+  <div class="g2">
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--red)"></span>% Quiebre por Cadena</div>
+      <table class="ctable" id="cadenaTable"></table>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--orange)"></span>Motivos de Quiebre</div>
+      <div class="bar-chart" id="motivosBars"></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="g2">
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--navy)"></span>Top SKUs con Quiebre</div>
+      <div class="bar-chart" id="skuBars"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--gold-dark)"></span>Quiebres por Semana</div>
+      <div id="semanaChart"></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="g2">
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--blue)"></span>Evolución Mensual — % Quiebre</div>
+      <div id="evolucionChart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span class="dot" style="background:var(--green)"></span>Distribución por Grupo</div>
+      <div id="grupoChart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <div>© 2026 <span>TT Audit</span> · Trade Marketing Solutions</div>
+  <div id="footerDate">Datos al cierre de Abril 2026</div>
+</div>
+
+<script>
+const DATA = {"FMC": {"ENE": {"total": 1715, "quiebres": 1338, "no_quiebres": 377, "pct": 78.0, "cadena": {"AVA": {"total": 107, "quiebres": 99, "pct": 92.5}, "OXXO": {"total": 76, "quiebres": 75, "pct": 98.7}, "PRIMAX": {"total": 351, "quiebres": 252, "pct": 71.8}, "REPSOL": {"total": 139, "quiebres": 138, "pct": 99.3}, "TAMBO": {"total": 1042, "quiebres": 774, "pct": 74.3}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 842, "AÚN NO LLEGA DESPACHO": 465, "CUENTAN CON MERCADERÍA VENCIDA QUE AÚN NO SE RECOGE": 26, "DESABASTECIDA. MERCADERÍA LLEGARÁ EN LA SEMANA": 4, "NO DESPACHARON SKU EN LA ÚLTIMA ENTREGA": 1}, "top_sku": {"LS FRESH TWIST-HL 20": 91, "LS ECLIPSE-HL 20": 72, "WINSTON BLUE-HL 10": 68, "WINSTON RED-HL 10": 60, "LS FRESH-HL 20": 59, "LS ECLIPSE-HL 10": 58, "LS BIG CHILL-HL 20": 52, "LS RED-HL 20": 49, "LS RED-HL 10": 44, "WINSTON RED-HL 20": 43}, "semana": {"SEM 1": {"total": 257, "quiebres": 232}, "SEM 2": {"total": 551, "quiebres": 452}, "SEM 3": {"total": 400, "quiebres": 308}, "SEM 4": {"total": 281, "quiebres": 195}, "SEM 5": {"total": 226, "quiebres": 151}}, "grupo": {"C-STORES": {"total": 1118, "quiebres": 849}, "PETROLS": {"total": 597, "quiebres": 489}}}, "FEB": {"total": 695, "quiebres": 381, "no_quiebres": 314, "pct": 54.8, "cadena": {"AVA": {"total": 10, "quiebres": 5, "pct": 50.0}, "OXXO": {"total": 12, "quiebres": 12, "pct": 100.0}, "PRIMAX": {"total": 158, "quiebres": 53, "pct": 33.5}, "REPSOL": {"total": 4, "quiebres": 3, "pct": 75.0}, "TAMBO": {"total": 511, "quiebres": 308, "pct": 60.3}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 237, "AÚN NO LLEGA DESPACHO": 68, "NO DESPACHAN SKU DESDE HACE SEMANAS": 46, "CUENTAN CON MERCADERÍA VENCIDA QUE AÚN NO SE RECOGE": 17, "DESABASTECIDA. MERCADERÍA LLEGARÁ EN LA SEMANA": 12, "FALTA AJUSTAR STOCK POR ERROR EN EL INGRESO AL SISTEMA": 1}, "top_sku": {"LS FRESH TWIST-HL 20": 41, "LS ECLIPSE-HL 20": 35, "LS RED-HL 20": 29, "LS ECLIPSE-HL 10": 25, "PALL MALL RED XL-HL 20": 22, "LS FRESH-HL 20": 18, "LS FRESH-HL 10": 17, "LS RED-HL 10": 17, "LS BLUE-HL 10": 15, "PALL MALL CLICK ON BLUE XL-HL 20": 13}, "semana": {"SEM 1": {"total": 197, "quiebres": 119}, "SEM 2": {"total": 135, "quiebres": 69}, "SEM 3": {"total": 178, "quiebres": 90}, "SEM 4": {"total": 185, "quiebres": 103}}, "grupo": {"C-STORES": {"total": 523, "quiebres": 320}, "PETROLS": {"total": 172, "quiebres": 61}}}, "MAR": {"total": 748, "quiebres": 392, "no_quiebres": 356, "pct": 52.4, "cadena": {"AVA": {"total": 26, "quiebres": 20, "pct": 76.9}, "OXXO": {"total": 11, "quiebres": 8, "pct": 72.7}, "PRIMAX": {"total": 202, "quiebres": 118, "pct": 58.4}, "REPSOL": {"total": 10, "quiebres": 9, "pct": 90.0}, "TAMBO": {"total": 499, "quiebres": 237, "pct": 47.5}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 232, "AÚN NO LLEGA DESPACHO": 135, "ALTA ROTACIÓN": 11, "CUENTAN CON MERCADERÍA VENCIDA QUE AÚN NO SE RECOGE": 7, "POCO DESPACHO POR BAJA ROTACIÓN": 6, "POCO DESPACHO DEL SKU": 1}, "top_sku": {"LS RED-HL 20": 50, "LS FRESH-HL 20": 22, "PALL MALL RED XL-HL 20": 22, "LS RED-HL 10": 19, "LS ECLIPSE-HL 20": 19, "LS BLUE-HL 20": 17, "LS CRUSH-HL 20": 17, "LS FRESH TWIST-HL 20": 17, "PALL MALL CLICK ON BLUE XL-HL 20": 17, "PALL MALL SUNSET XL-HL 20": 16}, "semana": {"SEM 1": {"total": 185, "quiebres": 108}, "SEM 2": {"total": 131, "quiebres": 66}, "SEM 3": {"total": 184, "quiebres": 91}, "SEM 4": {"total": 186, "quiebres": 95}, "SEM 5": {"total": 62, "quiebres": 32}}, "grupo": {"C-STORES": {"total": 510, "quiebres": 245}, "PETROLS": {"total": 238, "quiebres": 147}}}, "ABR": {"total": 964, "quiebres": 573, "no_quiebres": 391, "pct": 59.4, "cadena": {"AVA": {"total": 21, "quiebres": 17, "pct": 81.0}, "OXXO": {"total": 27, "quiebres": 20, "pct": 74.1}, "PRIMAX": {"total": 187, "quiebres": 112, "pct": 59.9}, "REPSOL": {"total": 4, "quiebres": 4, "pct": 100.0}, "TAMBO": {"total": 725, "quiebres": 420, "pct": 57.9}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 396, "AÚN NO LLEGA DESPACHO": 136, "DESABASTECIDA. MERCADERÍA LLEGARÁ EN LA SEMANA": 19, "ALTA ROTACIÓN": 16, "POCO DESPACHO POR BAJA ROTACIÓN": 3, "POCO DESPACHO DEL SKU": 3}, "top_sku": {"LS ECLIPSE-HL 20": 56, "LS WILD MIX-HL 20": 34, "LS RED-HL 20": 31, "PALL MALL CLICK ON BLUE XL-HL 20": 29, "LS CRUSH-HL 20": 25, "LS FRESH-HL 20": 24, "PALL MALL BLUE XL-HL 20": 24, "LS RED-HL 10": 24, "LS BLUE-HL 10": 24, "LS BIG CHILL-HL 20": 23}, "semana": {"SEM 1": {"total": 405, "quiebres": 275}, "SEM 2": {"total": 183, "quiebres": 106}, "SEM 3": {"total": 184, "quiebres": 89}, "SEM 4": {"total": 189, "quiebres": 102}, "SEM 5": {"total": 3, "quiebres": 1}}, "grupo": {"C-STORES": {"total": 752, "quiebres": 440}, "PETROLS": {"total": 212, "quiebres": 133}}}}, "VUSE": {"ENE": {"total": 11770, "quiebres": 4007, "no_quiebres": 7763, "pct": 34.0, "cadena": {"AVA": {"total": 479, "quiebres": 286, "pct": 59.7}, "OXXO": {"total": 1224, "quiebres": 132, "pct": 10.8}, "PRIMAX": {"total": 2699, "quiebres": 1455, "pct": 53.9}, "REPSOL": {"total": 348, "quiebres": 101, "pct": 29.0}, "TAMBO": {"total": 7020, "quiebres": 2033, "pct": 29.0}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 2319, "AÚN NO LLEGA DESPACHO": 1688}, "top_sku": {"VUSE MIX DE FRUTOS ROJOS 5K": 364, "VUSE FRUTOS ROJOS Y SANDIA 5K": 304, "VUSE FRAMBUESA 5K": 299, "VUSE FRAMBUESA 1K": 283, "VUSE MANZANA 5K": 269, "VUSE FRAMBUESA 8K": 226, "VUSE FRESA FRESCA 1K": 226, "VUSE MANZANA 8K": 207, "VUSE MIX DE FRUTOS ROJOS 1K": 183, "VUSE MANZANA 1K": 182}, "semana": {"SEM 1": {"total": 379, "quiebres": 301}, "SEM 2": {"total": 3248, "quiebres": 1435}, "SEM 3": {"total": 2763, "quiebres": 1010}, "SEM 4": {"total": 2611, "quiebres": 445}, "SEM 5": {"total": 2769, "quiebres": 816}}, "grupo": {"C-STORES": {"total": 8244, "quiebres": 2165}, "PETROLS": {"total": 3526, "quiebres": 1842}}}, "FEB": {"total": 15015, "quiebres": 3055, "no_quiebres": 11960, "pct": 20.3, "cadena": {"AVA": {"total": 555, "quiebres": 237, "pct": 42.7}, "INDELFI": {"total": 14, "quiebres": 0, "pct": 0.0}, "OXXO": {"total": 2807, "quiebres": 91, "pct": 3.2}, "PRIMAX": {"total": 2711, "quiebres": 1073, "pct": 39.6}, "REPSOL": {"total": 495, "quiebres": 70, "pct": 14.1}, "TAMBO": {"total": 8427, "quiebres": 1584, "pct": 18.8}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 1592, "AÚN NO LLEGA DESPACHO": 1234}, "top_sku": {"VUSE FRUTOS ROJOS Y SANDIA 5K": 227, "VUSE MANZANA 5K": 219, "VUSE FRAMBUESA 5K": 213, "VUSE FRAMBUESA 1K": 210, "VUSE FRAMBUESA 8K": 194, "VUSE MIX DE FRUTOS ROJOS 5K": 193, "VUSE MANZANA 8K": 172, "VUSE UVA FRESCA 8K": 156, "VUSE UVA FRESCA 3K": 143, "VUSE UVA FRESCA 5K": 142}, "semana": {"SEM 1": {"total": 4711, "quiebres": 455}, "SEM 2": {"total": 3299, "quiebres": 719}, "SEM 3": {"total": 3932, "quiebres": 931}, "SEM 4": {"total": 3059, "quiebres": 950}}, "grupo": {"C-STORES": {"total": 11234, "quiebres": 1675}, "INDELFI": {"total": 14, "quiebres": 0}, "PETROLS": {"total": 3767, "quiebres": 1380}}}, "MAR": {"total": 19529, "quiebres": 2473, "no_quiebres": 17056, "pct": 12.7, "cadena": {"AVA": {"total": 585, "quiebres": 120, "pct": 20.5}, "OXXO": {"total": 2527, "quiebres": 94, "pct": 3.7}, "PRIMAX": {"total": 2426, "quiebres": 568, "pct": 23.4}, "REPSOL": {"total": 528, "quiebres": 91, "pct": 17.2}, "TAMBO": {"total": 13448, "quiebres": 1600, "pct": 11.9}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 1000, "AÚN NO LLEGA DESPACHO": 753}, "top_sku": {"VUSE FRUTOS ROJOS Y SANDIA 5K": 168, "VUSE FRAMBUESA 5K": 157, "VUSE MIX DE FRUTOS ROJOS 5K": 146, "VUSE FRAMBUESA 1K": 143, "VUSE ARANDANO FRESCO 5K": 135, "VUSE MANZANA 5K": 134, "VUSE ARANDANO FRESCO 1K": 128, "VUSE ARANDANO FRESCO 8K": 126, "VUSE FRAMBUESA 8K": 114, "VUSE MANZANA 8K": 113}, "semana": {"SEM 1": {"total": 6220, "quiebres": 995}, "SEM 2": {"total": 7680, "quiebres": 370}, "SEM 3": {"total": 2549, "quiebres": 628}, "SEM 4": {"total": 2440, "quiebres": 475}, "SEM 5": {"total": 640, "quiebres": 5}}, "grupo": {"C-STORES": {"total": 15975, "quiebres": 1694}, "PETROLS": {"total": 3554, "quiebres": 779}}}, "ABR": {"total": 13648, "quiebres": 1320, "no_quiebres": 12328, "pct": 9.7, "cadena": {"AVA": {"total": 294, "quiebres": 17, "pct": 5.8}, "OXXO": {"total": 2429, "quiebres": 2, "pct": 0.1}, "PRIMAX": {"total": 2096, "quiebres": 379, "pct": 18.1}, "REPSOL": {"total": 580, "quiebres": 99, "pct": 17.1}, "TAMBO": {"total": 8245, "quiebres": 823, "pct": 10.0}}, "motivos": {"NO LLEGÓ DESPACHO ESTA SEMANA": 840, "AÚN NO LLEGA DESPACHO": 480}, "top_sku": {"VUSE ARANDANO FRESCO 8K": 138, "VUSE ARANDANO FRESCO 5K": 116, "VUSE FRUTOS ROJOS Y SANDIA 5K": 110, "VUSE FRAMBUESA 1K": 98, "VUSE MENTA FRESCA 5K": 84, "VUSE ARANDANO FRESCO 1K": 83, "VUSE UVA FRESCA 8K": 74, "VUSE MANZANA 5K": 70, "VUSE MANZANA 8K": 66, "VUSE MANZANA 3K": 57}, "semana": {"SEM 1": {"total": 6142, "quiebres": 416}, "SEM 2": {"total": 4573, "quiebres": 409}, "SEM 3": {"total": 2102, "quiebres": 269}, "SEM 4": {"total": 831, "quiebres": 226}}, "grupo": {"C-STORES": {"total": 10674, "quiebres": 825}, "PETROLS": {"total": 2974, "quiebres": 495}}}}};
+
+const MES_LABELS = {ENE:'ENERO 2026',FEB:'FEBRERO 2026',MAR:'MARZO 2026',ABR:'ABRIL 2026'};
+const MESES = ['ENE','FEB','MAR','ABR'];
+let curCat = 'FMC';
+let curMes = 'ENE';
+
+function pctColor(p) {
+  if(p >= 70) return 'var(--red)';
+  if(p >= 40) return 'var(--orange)';
+  return 'var(--green)';
+}
+function pctBadge(p) {
+  if(p >= 70) return 'badge-red';
+  if(p >= 40) return 'badge-orange';
+  return 'badge-green';
+}
+
+function renderKPIs(d) {
+  const ef = 100 - d.pct;
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card" style="--kc:var(--navy)">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-val">${d.total.toLocaleString()}</div>
+      <div class="kpi-label">Registros totales</div>
+      <div class="kpi-sub">PDV × SKU auditados</div>
+    </div>
+    <div class="kpi-card" style="--kc:var(--red)">
+      <div class="kpi-icon">❌</div>
+      <div class="kpi-val">${d.quiebres.toLocaleString()}</div>
+      <div class="kpi-label">Quiebres totales</div>
+      <div class="kpi-sub">Stock = 0</div>
+    </div>
+    <div class="kpi-card" style="--kc:var(--green)">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-val">${d.no_quiebres.toLocaleString()}</div>
+      <div class="kpi-label">Con stock</div>
+      <div class="kpi-sub">Sin quiebre</div>
+    </div>
+    <div class="kpi-card" style="--kc:${pctColor(d.pct)}">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-val" style="color:${pctColor(d.pct)}">${d.pct}%</div>
+      <div class="kpi-label">% Quiebre</div>
+      <div class="kpi-sub">Sobre total registros</div>
+    </div>
+    <div class="kpi-card" style="--kc:var(--green)">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-val" style="color:var(--green)">${ef.toFixed(1)}%</div>
+      <div class="kpi-label">Disponibilidad</div>
+      <div class="kpi-sub">Con stock / total</div>
+    </div>
+  `;
+}
+
+function renderCadena(d) {
+  const rows = Object.entries(d.cadena).sort((a,b) => b[1].pct - a[1].pct);
+  document.getElementById('cadenaTable').innerHTML = `
+    <thead><tr><th>Cadena</th><th>Total</th><th>Quiebres</th><th>% Quiebre</th></tr></thead>
+    <tbody>
+      ${rows.map(([cad,v]) => `
+        <tr>
+          <td style="font-weight:700;color:var(--navy)">${cad}</td>
+          <td>${v.total.toLocaleString()}</td>
+          <td style="font-weight:700;color:var(--red)">${v.quiebres.toLocaleString()}</td>
+          <td>
+            <div class="pct-bar-wrap">
+              <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:${v.pct}%;background:${pctColor(v.pct)}"></div></div>
+              <span class="${pctBadge(v.pct)}">${v.pct}%</span>
+            </div>
+          </td>
+        </tr>`).join('')}
+    </tbody>`;
+}
+
+function renderMotivos(d) {
+  const items = Object.entries(d.motivos).sort((a,b) => b[1]-a[1]);
+  const max = items[0]?.[1] || 1;
+  const colors = ['#C93B3B','#D97706','#6B7A99','#243580','#0E9B6A','#C9A000'];
+  document.getElementById('motivosBars').innerHTML = items.map(([k,v],i) => `
+    <div class="bar-row">
+      <div class="bar-label" title="${k}">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:${colors[i%colors.length]}"></div></div>
+      <div class="bar-val">${v.toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function renderSKU(d) {
+  const items = Object.entries(d.top_sku).sort((a,b) => b[1]-a[1]).slice(0,10);
+  const max = items[0]?.[1] || 1;
+  document.getElementById('skuBars').innerHTML = items.map(([k,v]) => `
+    <div class="bar-row">
+      <div class="bar-label" style="font-size:10px" title="${k}">${k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%;background:var(--navy)"></div></div>
+      <div class="bar-val" style="font-size:10px">${v}</div>
+    </div>`).join('');
+}
+
+function renderSemana(d) {
+  const sems = Object.entries(d.semana).sort((a,b) => a[0].localeCompare(b[0]));
+  if(!sems.length) { document.getElementById('semanaChart').innerHTML='<div style="color:var(--muted);font-size:12px">Sin datos</div>'; return; }
+  const maxQ = Math.max(...sems.map(([,v]) => v.quiebres));
+  const h = 80;
+  let html = '<div style="display:flex;gap:10px;align-items:flex-end;padding:8px 0;">';
+  sems.forEach(([sem,v]) => {
+    const bh = maxQ ? Math.max(Math.round(v.quiebres/maxQ*h), 3) : 3;
+    const pct = v.total ? (v.quiebres/v.total*100).toFixed(0) : 0;
+    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">
+      <div style="font-size:10px;font-weight:700;color:${pctColor(parseFloat(pct))}">${pct}%</div>
+      <div style="width:100%;height:${bh}px;background:${pctColor(parseFloat(pct))};border-radius:4px 4px 0 0"></div>
+      <div style="font-size:9px;color:var(--muted);font-weight:600;text-align:center">${sem}</div>
+      <div style="font-size:9px;color:var(--text2)">${v.quiebres.toLocaleString()}</div>
+    </div>`;
+  });
+  document.getElementById('semanaChart').innerHTML = html + '</div>';
+}
+
+function renderEvolucion() {
+  const catData = DATA[curCat];
+  const meses = MESES.filter(m => catData[m]);
+  const maxPct = Math.max(...meses.map(m => catData[m].pct));
+  const h = 90;
+  let html = '<div style="display:flex;gap:14px;align-items:flex-end;height:120px;">';
+  meses.forEach(m => {
+    const d = catData[m];
+    const bh = maxPct ? Math.max(Math.round(d.pct/maxPct*h), 3) : 3;
+    const isActive = m === curMes;
+    html += `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+      <div style="font-size:11px;font-weight:700;color:${pctColor(d.pct)}">${d.pct}%</div>
+      <div style="width:100%;height:${bh}px;background:${isActive?pctColor(d.pct):pctColor(d.pct)+'88'};border-radius:4px 4px 0 0;border:${isActive?'2px solid var(--navy)':'none'}"></div>
+      <div style="font-size:10px;color:var(--muted);font-weight:${isActive?'700':'400'}">${m}</div>
+    </div>`;
+  });
+  document.getElementById('evolucionChart').innerHTML = html + '</div>';
+}
+
+function renderGrupo(d) {
+  const items = Object.entries(d.grupo);
+  const total = items.reduce((s,[,v]) => s+v.total, 0);
+  const colors = {'C-STORES':'#1B2F6E','PETROLS':'#C9A000','INDELFI':'#0E9B6A'};
+  const r=55,cx=65,cy=65; let ang=-Math.PI/2, paths='';
+  items.forEach(([grp,v]) => {
+    if(!v.total) return;
+    const a = v.total/total * 2*Math.PI;
+    const x1=cx+r*Math.cos(ang),y1=cy+r*Math.sin(ang),x2=cx+r*Math.cos(ang+a),y2=cy+r*Math.sin(ang+a);
+    paths += `<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r},0,${a>Math.PI?1:0},1,${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${colors[grp]||'#888'}" opacity="0.9"/>`;
+    ang += a;
+  });
+  const legend = items.map(([grp,v]) => {
+    const pct = total ? (v.total/total*100).toFixed(1) : 0;
+    const qpct = v.total ? (v.quiebres/v.total*100).toFixed(1) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0">
+      <div style="width:10px;height:10px;border-radius:2px;background:${colors[grp]||'#888'};flex-shrink:0"></div>
+      <span style="color:var(--text2)">${grp}</span>
+      <span style="margin-left:auto;font-weight:700;color:var(--navy)">${v.total.toLocaleString()}</span>
+      <span style="font-size:10px;color:var(--muted)">${pct}%</span>
+      <span class="${pctBadge(parseFloat(qpct))}" style="font-size:9px">${qpct}%q</span>
+    </div>`;
+  }).join('');
+  document.getElementById('grupoChart').innerHTML = `
+    <div style="display:flex;align-items:center;gap:24px">
+      <div style="flex-shrink:0">
+        <svg viewBox="0 0 130 130" width="120" height="120">
+          <circle cx="65" cy="65" r="55" fill="#EBEEF7"/>
+          ${paths}
+          <circle cx="65" cy="65" r="35" fill="white"/>
+        </svg>
+      </div>
+      <div style="flex:1">${legend}</div>
+    </div>`;
+}
+
+function render() {
+  const d = DATA[curCat][curMes];
+  if(!d) return;
+  document.getElementById('mesBadge').textContent = MES_LABELS[curMes];
+  document.getElementById('sectionTitle').textContent = `${curCat === 'FMC' ? 'FMC — Cigarrillos' : 'VUSE — Vapes'} · Resumen General`;
+  renderKPIs(d);
+  renderCadena(d);
+  renderMotivos(d);
+  renderSKU(d);
+  renderSemana(d);
+  renderEvolucion();
+  renderGrupo(d);
+}
+
+// Month buttons
+document.querySelectorAll('.month-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    curMes = btn.dataset.mes;
+    document.querySelectorAll('.month-btn').forEach(b => {
+      b.className = 'month-btn ' + (b.dataset.mes === curMes ? 'active' : 'inactive');
+    });
+    render();
+  });
+});
+
+// Category tabs
+document.querySelectorAll('.cat-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    curCat = tab.dataset.cat;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === curCat));
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
